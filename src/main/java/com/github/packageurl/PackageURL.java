@@ -553,6 +553,10 @@ public final class PackageURL implements Serializable {
         }
     }
 
+    private static String canonicalizeQualifierKey(final String key) {
+        return StringUtil.toLowerCase(key);
+    }
+
     private static @Nullable Map<String, String> parseQualifiers(final @Nullable Map<String, String> qualifiers)
             throws MalformedPackageURLException {
         if (qualifiers == null || qualifiers.isEmpty()) {
@@ -564,7 +568,7 @@ public final class PackageURL implements Serializable {
                     .filter(entry -> !isEmpty(entry.getValue()))
                     .collect(
                             TreeMap::new,
-                            (map, value) -> map.put(StringUtil.toLowerCase(value.getKey()), value.getValue()),
+                            (map, value) -> map.put(canonicalizeQualifierKey(value.getKey()), value.getValue()),
                             TreeMap::putAll);
             return validateQualifiers(results);
         } catch (ValidationException ex) {
@@ -582,7 +586,7 @@ public final class PackageURL implements Serializable {
                             (map, value) -> {
                                 final String[] entry = value.split("=", 2);
                                 if (entry.length == 2 && !entry[1].isEmpty()) {
-                                    String key = StringUtil.toLowerCase(entry[0]);
+                                    String key = canonicalizeQualifierKey(entry[0]);
                                     if (map.put(key, StringUtil.percentDecode(entry[1])) != null) {
                                         throw new ValidationException(
                                                 "Duplicate package qualifier encountered. More then one value was specified for "
